@@ -226,27 +226,29 @@ def load_model():
 def create_gradcam_model(model):
 
     try:
-
+        # Find EfficientNet backbone
         backbone = None
 
         for layer in model.layers:
-
             if isinstance(layer, tf.keras.Model):
-
                 if "efficientnet" in layer.name.lower():
                     backbone = layer
                     break
 
         if backbone is None:
+            st.warning("EfficientNet backbone not found.")
             return None
 
+        # Find Grad-CAM target layer
         target_layer = backbone.get_layer("top_conv")
 
+        # IMPORTANT:
+        # Use the FULL MODEL input and final MODEL output
         grad_model = tf.keras.models.Model(
-            inputs=model.input,
+            inputs=model.inputs,
             outputs=[
                 target_layer.output,
-                model.output
+                model.outputs[0]
             ]
         )
 
@@ -254,7 +256,9 @@ def create_gradcam_model(model):
 
     except Exception as e:
 
-        print("Grad-CAM error:", e)
+        st.warning(
+            f"Grad-CAM model could not be created: {e}"
+        )
 
         return None
 
@@ -296,16 +300,23 @@ def make_gradcam(grad_model, image):
     if grad_model is None:
         return None
 
-    image = image.convert("RGB")
-
-    resized = image.resize((224, 224))
-
-    img_array = np.array(resized).astype("float32")
-
-    img_array = np.expand_dims(img_array, axis=0)
-
     try:
 
+        # Prepare image
+        image_rgb = image.convert("RGB")
+
+        resized = image_rgb.resize((224, 224))
+
+        img_array = np.array(
+            resized
+        ).astype("float32")
+
+        img_array = np.expand_dims(
+            img_array,
+            axis=0
+        )
+
+        # Gradient calculation
         with tf.GradientTape() as tape:
 
             conv_outputs, predictions = grad_model(
@@ -317,16 +328,21 @@ def make_gradcam(grad_model, image):
                 predictions[0]
             )
 
-            class_output = predictions[:, predicted_index]
+            class_score = predictions[
+                0,
+                predicted_index
+            ]
 
+        # Calculate gradients
         gradients = tape.gradient(
-            class_output,
+            class_score,
             conv_outputs
         )
 
         if gradients is None:
             return None
 
+        # Average gradients
         pooled_gradients = tf.reduce_mean(
             gradients,
             axis=(0, 1, 2)
@@ -334,26 +350,37 @@ def make_gradcam(grad_model, image):
 
         conv_outputs = conv_outputs[0]
 
+        # Weighted feature maps
         heatmap = tf.reduce_sum(
             conv_outputs * pooled_gradients,
             axis=-1
         )
 
+        # ReLU
         heatmap = tf.maximum(
             heatmap,
             0
         )
 
-        max_value = tf.reduce_max(heatmap)
+        # Normalize
+        max_value = tf.reduce_max(
+            heatmap
+        )
 
         if max_value > 0:
-            heatmap = heatmap / max_value
+
+            heatmap = (
+                heatmap /
+                max_value
+            )
 
         return heatmap.numpy()
 
     except Exception as e:
 
-        print("Grad-CAM calculation error:", e)
+        st.warning(
+            f"Grad-CAM calculation failed: {e}"
+        )
 
         return None
 
@@ -687,58 +714,36 @@ if uploaded_file is not None:
     # GRAD-CAM
     # ========================================================
 
-    st.markdown(
-        '<div class="section-title">'
-        '🔥 AI Attention Map — Grad-CAM'
-        '</div>',
-        unsafe_allow_html=True
-    )
-
-    heatmap = make_gradcam(
-        grad_model,
-        image
-    )
-
-    overlay = create_overlay(
-        image,
-        heatmap
-    )
-
     if overlay is not None:
 
-        cam_col1, cam_col2 = st.columns(2)
+    st.markdown("### 🔥 Grad-CAM Visualization")
 
-        with cam_col1:
+    cam_col1, cam_col2 = st.columns(2)
 
-            st.markdown(
-                '<div class="card">',
-                unsafe_allow_html=True
-            )
+    with cam_col1:
 
-            st.markdown("### Original MRI")
+        st.markdown("#### Original MRI")
 
-            st.image(
-                image,
-                use_container_width=True
-            )
+        st.image(
+            image,
+            use_container_width=True
+        )
 
-            st.markdown("</div>", unsafe_allow_html=True)
+    with cam_col2:
 
-        with cam_col2:
+        st.markdown("#### AI Attention Map")
 
-            st.markdown(
-                '<div class="card">',
-                unsafe_allow_html=True
-            )
+        st.image(
+            overlay,
+            use_container_width=True
+        )
 
-            st.markdown("### Grad-CAM")
+else:
 
-            st.image(
-                overlay,
-                use_container_width=True
-            )
-
-            st.markdown("</div>", unsafe_allow_html=True)
+    st.info(
+        "Grad-CAM visualization is currently unavailable "
+        "for this prediction."
+    )
 
 
     # ========================================================
