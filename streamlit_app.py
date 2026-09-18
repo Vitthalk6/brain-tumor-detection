@@ -10,20 +10,21 @@ import zipfile
 from huggingface_hub import hf_hub_download
 
 
-# =========================================================
-# PAGE CONFIG
-# =========================================================
+# ============================================================
+# PAGE CONFIGURATION
+# ============================================================
 
 st.set_page_config(
     page_title="Brain Tumor Detection by Deep Learning",
     page_icon="🧠",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 
-# =========================================================
+# ============================================================
 # CONSTANTS
-# =========================================================
+# ============================================================
 
 CLASSES = [
     "Glioma",
@@ -38,101 +39,199 @@ MODEL_REPO = "Vitthalk/brain-tumor-efficientnet"
 MODEL_FILE = "efficientnet_best.keras"
 
 
-# =========================================================
-# SIMPLE PROFESSIONAL CSS
-# =========================================================
+# ============================================================
+# CREATIVE UI CSS
+# ============================================================
 
-st.markdown("""
-<style>
+st.markdown(
+    """
+    <style>
 
-.stApp {
-    background: linear-gradient(
-        135deg,
-        #07111f 0%,
-        #0b1424 50%,
-        #101827 100%
-    );
-}
+    /* Main application */
+    .stApp {
+        background:
+            radial-gradient(
+                circle at 10% 10%,
+                rgba(80, 120, 255, 0.12),
+                transparent 30%
+            ),
+            radial-gradient(
+                circle at 90% 15%,
+                rgba(170, 80, 255, 0.10),
+                transparent 30%
+            ),
+            linear-gradient(
+                135deg,
+                #07111f 0%,
+                #0b1424 50%,
+                #101827 100%
+            );
+    }
 
-.block-container {
-    max-width: 1200px;
-    padding-top: 2rem;
-    padding-bottom: 3rem;
-}
+    .block-container {
+        max-width: 1250px;
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
 
-.hero-box {
-    padding: 35px;
-    border-radius: 24px;
-    background: rgba(20, 35, 65, 0.90);
-    border: 1px solid rgba(255,255,255,0.10);
-    margin-bottom: 25px;
-}
+    /* Hero */
+    .hero {
+        padding: 38px 35px;
+        border-radius: 26px;
+        margin-bottom: 25px;
+        background:
+            linear-gradient(
+                135deg,
+                rgba(24, 42, 76, 0.96),
+                rgba(35, 23, 67, 0.96)
+            );
+        border: 1px solid rgba(255,255,255,0.10);
+        box-shadow:
+            0 20px 50px rgba(0,0,0,0.30);
+    }
 
-.hero-title {
-    font-size: 40px;
-    font-weight: 800;
-}
+    .hero-title {
+        font-size: 44px;
+        font-weight: 800;
+        letter-spacing: -1.5px;
+        line-height: 1.15;
+    }
 
-.hero-subtitle {
-    font-size: 17px;
-    margin-top: 10px;
-    opacity: 0.75;
-}
+    .hero-subtitle {
+        margin-top: 10px;
+        font-size: 18px;
+        color: #aebbd0;
+    }
 
-.result-box {
-    padding: 25px;
-    border-radius: 20px;
-    background: rgba(20, 35, 55, 0.85);
-    border: 1px solid rgba(255,255,255,0.10);
-    margin-top: 20px;
-}
+    .hero-badge {
+        display: inline-block;
+        margin-top: 18px;
+        padding: 8px 16px;
+        border-radius: 30px;
+        background: rgba(100,130,255,0.15);
+        border: 1px solid rgba(130,155,255,0.30);
+        color: #bdcaff;
+        font-size: 13px;
+        font-weight: 600;
+    }
 
-.section-title {
-    font-size: 24px;
-    font-weight: 700;
-    margin-top: 25px;
-    margin-bottom: 12px;
-}
+    /* Cards */
+    .creative-card {
+        background: rgba(17, 29, 48, 0.80);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 22px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 12px 35px rgba(0,0,0,0.18);
+    }
 
-</style>
-""", unsafe_allow_html=True)
+    .card-heading {
+        font-size: 23px;
+        font-weight: 750;
+        margin-bottom: 6px;
+    }
+
+    .card-description {
+        color: #98a8bd;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    /* Section title */
+    .section-title {
+        font-size: 25px;
+        font-weight: 750;
+        margin-top: 28px;
+        margin-bottom: 12px;
+    }
+
+    /* Status badge */
+    .status {
+        padding: 14px 18px;
+        border-radius: 15px;
+        background: rgba(40, 70, 110, 0.20);
+        border: 1px solid rgba(100,150,220,0.20);
+        margin: 15px 0;
+    }
+
+    /* Footer */
+    .footer {
+        text-align: center;
+        color: #718096;
+        font-size: 13px;
+        padding: 30px 10px 10px 10px;
+    }
+
+    /* File uploader */
+    [data-testid="stFileUploader"] {
+        background: rgba(10, 20, 35, 0.60);
+        border-radius: 18px;
+        padding: 8px;
+    }
+
+    /* Buttons */
+    .stButton > button,
+    .stDownloadButton > button {
+        min-height: 48px;
+        border-radius: 13px;
+        font-weight: 700;
+    }
+
+    /* Metrics */
+    [data-testid="stMetric"] {
+        background: rgba(18, 30, 50, 0.78);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 18px;
+        padding: 18px;
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 
-# =========================================================
-# MODEL
-# =========================================================
+# ============================================================
+# LOAD MODEL
+# ============================================================
 
 @st.cache_resource
 def load_model():
 
-    path = hf_hub_download(
+    model_path = hf_hub_download(
         repo_id=MODEL_REPO,
         filename=MODEL_FILE
     )
 
     return tf.keras.models.load_model(
-        path,
+        model_path,
         compile=False
     )
 
 
-# =========================================================
-# GRAD-CAM
-# =========================================================
+# ============================================================
+# LOAD GRAD-CAM PARTS
+#
+# THIS IS THE ORIGINAL WORKING STRUCTURE
+# FROM YOUR PREVIOUS STREAMLIT CODE.
+# ============================================================
 
 @st.cache_resource
 def load_gradcam_parts():
 
     model = load_model()
 
+    # Original augmentation layer
     augmentation = model.get_layer(
         "data_augmentation"
     )
 
+    # Original EfficientNet backbone
     backbone = model.get_layer(
         "efficientnetb0"
     )
 
+    # Original classification layers
     gap = model.get_layer(
         "global_average_pooling2d_1"
     )
@@ -145,10 +244,14 @@ def load_gradcam_parts():
         "dense_2"
     )
 
+    # Original Grad-CAM target layer
     top_conv = backbone.get_layer(
         "top_conv"
     )
 
+    # IMPORTANT:
+    # This is the same Grad-CAM model structure
+    # from your old working application.
     grad_backbone = tf.keras.Model(
         inputs=backbone.input,
         outputs=[
@@ -167,9 +270,9 @@ def load_gradcam_parts():
     )
 
 
-# =========================================================
-# LOAD EVERYTHING
-# =========================================================
+# ============================================================
+# INITIALIZE MODEL
+# ============================================================
 
 try:
 
@@ -182,28 +285,30 @@ try:
         classifier
     ) = load_gradcam_parts()
 
-    model_ready = True
+    MODEL_READY = True
 
-except Exception as e:
+except Exception as error:
 
-    model_ready = False
-    model_error = str(e)
+    MODEL_READY = False
+    MODEL_ERROR = str(error)
 
 
-if not model_ready:
+if not MODEL_READY:
 
     st.error(
-        "The AI model could not be loaded."
+        "⚠️ The AI model could not be loaded."
     )
 
-    st.code(model_error)
+    st.code(
+        MODEL_ERROR
+    )
 
     st.stop()
 
 
-# =========================================================
+# ============================================================
 # PREDICTION
-# =========================================================
+# ============================================================
 
 def predict(image):
 
@@ -221,28 +326,28 @@ def predict(image):
         axis=0
     )
 
-    probs = model.predict(
+    probabilities = model.predict(
         x,
         verbose=0
     )[0]
 
-    index = int(
-        np.argmax(probs)
+    predicted_index = int(
+        np.argmax(probabilities)
     )
 
     return (
         resized,
         x,
-        probs,
-        index
+        probabilities,
+        predicted_index
     )
 
 
-# =========================================================
-# GRAD-CAM CALCULATION
-# =========================================================
+# ============================================================
+# ORIGINAL WORKING GRAD-CAM
+# ============================================================
 
-def make_gradcam(
+def gradcam(
     x,
     class_index
 ):
@@ -256,16 +361,19 @@ def make_gradcam(
 
         with tf.GradientTape() as tape:
 
+            # Original augmentation
             augmented = augmentation(
                 x,
                 training=False
             )
 
+            # Original Grad-CAM backbone
             conv, features = grad_backbone(
                 augmented,
                 training=False
             )
 
+            # Original classifier path
             pooled = gap(
                 features
             )
@@ -275,16 +383,12 @@ def make_gradcam(
                 training=False
             )
 
-            predictions = classifier(
+            score = classifier(
                 dropped,
                 training=False
-            )
+            )[:, class_index]
 
-            score = predictions[
-                :,
-                class_index
-            ]
-
+        # Gradient
         gradients = tape.gradient(
             score,
             conv
@@ -293,23 +397,28 @@ def make_gradcam(
         if gradients is None:
             return None
 
+        # Channel weights
         weights = tf.reduce_mean(
             gradients,
             axis=(1, 2)
         )[0]
 
+        # Feature maps
         conv_output = conv[0]
 
+        # Weighted feature maps
         heatmap = tf.reduce_sum(
             conv_output * weights,
             axis=-1
         )
 
+        # ReLU
         heatmap = tf.maximum(
             heatmap,
             0
         )
 
+        # Normalize
         maximum = tf.reduce_max(
             heatmap
         )
@@ -327,9 +436,9 @@ def make_gradcam(
         return None
 
 
-# =========================================================
-# GRAD-CAM OVERLAY
-# =========================================================
+# ============================================================
+# CREATE GRAD-CAM OVERLAY
+# ============================================================
 
 def create_overlay(
     image,
@@ -353,44 +462,49 @@ def create_overlay(
         (width, height)
     )
 
-    heat = np.asarray(
-        heatmap_image
-    ).astype(np.float32) / 255.0
+    heat = (
+        np.asarray(
+            heatmap_image
+        ).astype(np.float32)
+        / 255.0
+    )
 
-    colored = (
+    colored_heatmap = (
         plt.get_cmap("jet")(
             heat
         )[..., :3] * 255
     )
 
-    combined = (
-        0.60 * original +
-        0.40 * colored
+    result = (
+        0.60 * original
+        +
+        0.40 * colored_heatmap
     )
 
-    combined = np.clip(
-        combined,
+    result = np.clip(
+        result,
         0,
         255
     )
 
     return Image.fromarray(
-        np.uint8(combined)
+        np.uint8(result)
     )
 
 
-# =========================================================
-# REPORT
-# =========================================================
+# ============================================================
+# CREATE REPORT
+# ============================================================
 
 def create_report(
     resized,
     cam,
     predicted,
     confidence,
-    probs
+    probabilities
 ):
 
+    # Indian Standard Time
     indian_time = datetime.now(
         ZoneInfo("Asia/Kolkata")
     )
@@ -427,7 +541,7 @@ def create_report(
 
     for name, probability in zip(
         CLASSES,
-        probs
+        probabilities
     ):
 
         report.write(
@@ -456,11 +570,13 @@ def create_report(
         zipfile.ZIP_DEFLATED
     ) as archive:
 
+        # Text report
         archive.writestr(
             "prediction_report.txt",
             report.getvalue()
         )
 
+        # Resized image
         image_buffer = io.BytesIO()
 
         resized.save(
@@ -474,6 +590,7 @@ def create_report(
             image_buffer.getvalue()
         )
 
+        # Grad-CAM image
         if cam is not None:
 
             cam_buffer = io.BytesIO()
@@ -492,76 +609,92 @@ def create_report(
     return buffer.getvalue()
 
 
-# =========================================================
-# HERO
-# =========================================================
+# ============================================================
+# HERO HEADER
+# ============================================================
 
 st.markdown(
-    '<div class="hero-box">',
-    unsafe_allow_html=True
-)
+    """
+    <div class="hero">
 
-st.markdown(
-    '<div class="hero-title">🧠 Brain Tumor Detection</div>',
-    unsafe_allow_html=True
-)
+        <div class="hero-title">
+            🧠 Brain Tumor Detection
+        </div>
 
-st.markdown(
-    '<div class="hero-subtitle">'
-    'Deep Learning Based MRI Classification System'
-    '</div>',
-    unsafe_allow_html=True
-)
+        <div class="hero-subtitle">
+            Deep Learning Based MRI Classification System
+        </div>
 
-st.markdown(
-    '<p>EfficientNetB0 • MRI Image Analysis • Grad-CAM</p>',
-    unsafe_allow_html=True
-)
+        <div class="hero-badge">
+            EfficientNetB0 &nbsp;•&nbsp;
+            MRI Analysis &nbsp;•&nbsp;
+            Grad-CAM
+        </div>
 
-st.markdown(
-    '</div>',
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
 
-# =========================================================
+# ============================================================
 # INTRODUCTION
-# =========================================================
-
-st.info(
-    "Upload a brain MRI image and click "
-    "**Analyze MRI** to run the deep learning model. "
-    "The system provides a predicted class, model "
-    "confidence, class probabilities and Grad-CAM."
-)
-
-
-# =========================================================
-# UPLOAD
-# =========================================================
+# ============================================================
 
 st.markdown(
-    '<div class="section-title">📤 Upload Brain MRI</div>',
+    """
+    <div class="creative-card">
+
+        <div class="card-heading">
+            🔬 AI-Powered MRI Analysis
+        </div>
+
+        <div class="card-description">
+            Upload a brain MRI image and manually start the
+            analysis. The system provides a model prediction,
+            confidence score, class probabilities and Grad-CAM
+            visualization.
+        </div>
+
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
-st.write(
-    "Select a JPG, JPEG or PNG MRI image."
+
+# ============================================================
+# UPLOAD SECTION
+# ============================================================
+
+st.markdown(
+    """
+    <div class="section-title">
+        📤 Upload Brain MRI
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+st.caption(
+    "Supported formats: JPG, JPEG and PNG"
 )
 
 
-# =========================================================
+# ============================================================
 # FORM
-# This prevents automatic analysis after upload.
-# =========================================================
+#
+# IMPORTANT:
+# Uploading an image DOES NOT automatically analyze it.
+# Analysis happens only after pressing the button.
+# ============================================================
 
 with st.form(
-    "mri_form",
+    "mri_analysis_form",
     clear_on_submit=False
 ):
 
     uploaded = st.file_uploader(
-        "Choose MRI image",
+        "Select your MRI image",
         type=[
             "jpg",
             "jpeg",
@@ -576,19 +709,24 @@ with st.form(
     )
 
 
-# =========================================================
-# ANALYZE
-# =========================================================
+# ============================================================
+# ANALYSIS
+# ============================================================
 
 if analyze:
 
     if uploaded is None:
 
         st.warning(
-            "Please upload an MRI image first."
+            "Please upload an MRI image before starting analysis."
         )
 
         st.stop()
+
+
+    # --------------------------------------------------------
+    # OPEN IMAGE
+    # --------------------------------------------------------
 
     try:
 
@@ -599,45 +737,59 @@ if analyze:
     except Exception:
 
         st.error(
-            "Unable to read the uploaded image."
+            "Unable to read this image. "
+            "Please upload a valid JPG, JPEG or PNG image."
         )
 
         st.stop()
 
 
-    # -----------------------------------------------------
-    # IMAGE
-    # -----------------------------------------------------
+    # --------------------------------------------------------
+    # IMAGE PREVIEW
+    # --------------------------------------------------------
 
     st.markdown(
-        '<div class="section-title">🖼️ Uploaded MRI</div>',
+        """
+        <div class="section-title">
+            🖼️ MRI Image
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
     st.image(
         image,
+        caption="Uploaded Brain MRI",
         use_container_width=True
     )
 
 
-    # -----------------------------------------------------
-    # ANALYSIS
-    # -----------------------------------------------------
+    # --------------------------------------------------------
+    # AI ANALYSIS
+    # --------------------------------------------------------
 
     with st.spinner(
         "🧠 AI is analyzing the MRI..."
     ):
 
-        resized, x, probs, index = predict(
+        resized, x, probabilities, predicted_index = predict(
             image
         )
 
-        predicted = CLASSES[index]
+        predicted = CLASSES[
+            predicted_index
+        ]
 
         confidence = (
-            float(probs[index]) * 100
+            float(
+                probabilities[
+                    predicted_index
+                ]
+            ) * 100
         )
 
+
+        # Confidence level
         if confidence >= 80:
 
             confidence_level = (
@@ -657,9 +809,14 @@ if analyze:
                 "interpret cautiously"
             )
 
-        heatmap = make_gradcam(
+
+        # ----------------------------------------------------
+        # GRAD-CAM
+        # ----------------------------------------------------
+
+        heatmap = gradcam(
             x,
-            index
+            predicted_index
         )
 
         cam = create_overlay(
@@ -668,12 +825,16 @@ if analyze:
         )
 
 
-    # -----------------------------------------------------
+    # ========================================================
     # RESULT
-    # -----------------------------------------------------
+    # ========================================================
 
     st.markdown(
-        '<div class="section-title">🎯 Analysis Result</div>',
+        """
+        <div class="section-title">
+            🎯 Analysis Result
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
@@ -681,15 +842,19 @@ if analyze:
     if predicted == "No Tumor":
 
         st.success(
-            "🟢 Model prediction: No Tumor"
+            "🟢 Model Prediction: No Tumor"
         )
 
     else:
 
         st.warning(
-            f"🟠 Model prediction: {predicted}"
+            f"🟠 Model Prediction: {predicted}"
         )
 
+
+    # --------------------------------------------------------
+    # RESULT METRICS
+    # --------------------------------------------------------
 
     col1, col2, col3 = st.columns(3)
 
@@ -710,30 +875,33 @@ if analyze:
     with col3:
 
         st.metric(
-            "Architecture",
+            "AI Model",
             "EfficientNetB0"
         )
 
 
-    st.write(
-        f"**Confidence level:** "
-        f"{confidence_level}"
+    st.info(
+        f"**Confidence level:** {confidence_level}"
     )
 
 
-    # -----------------------------------------------------
-    # PROBABILITIES
-    # -----------------------------------------------------
+    # ========================================================
+    # CLASS PROBABILITIES
+    # ========================================================
 
     st.markdown(
-        '<div class="section-title">📊 Class Probabilities</div>',
+        """
+        <div class="section-title">
+            📊 Class Probabilities
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
 
     for name, probability in zip(
         CLASSES,
-        probs
+        probabilities
     ):
 
         percentage = (
@@ -741,7 +909,7 @@ if analyze:
         )
 
         st.write(
-            f"**{name}: {percentage:.2f}%**"
+            f"**{name} — {percentage:.2f}%**"
         )
 
         st.progress(
@@ -749,20 +917,22 @@ if analyze:
         )
 
 
-    # -----------------------------------------------------
+    # ========================================================
     # GRAD-CAM
-    # -----------------------------------------------------
+    # ========================================================
 
     st.markdown(
-        '<div class="section-title">'
-        '🔥 Grad-CAM Visualization'
-        '</div>',
+        """
+        <div class="section-title">
+            🔥 Grad-CAM Visualization
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
-    st.write(
-        "The visualization highlights regions that "
-        "influenced the model prediction."
+    st.caption(
+        "Grad-CAM highlights image regions that influenced "
+        "the model's prediction."
     )
 
 
@@ -771,43 +941,59 @@ if analyze:
         st.image(
             cam,
             caption=(
-                "Grad-CAM — model attention visualization"
+                "Grad-CAM — Model Attention Visualization"
             ),
             use_container_width=True
         )
 
+        st.success(
+            "Grad-CAM visualization generated successfully."
+        )
+
         st.caption(
-            "Grad-CAM is an AI visualization technique. "
-            "It does not represent a medically confirmed "
-            "tumor location."
+            "The highlighted regions represent areas that "
+            "influenced the neural network prediction. "
+            "They are not a medically confirmed tumor location."
         )
 
     else:
 
         st.warning(
-            "Grad-CAM visualization could not be generated."
+            "Grad-CAM visualization could not be generated "
+            "for this image."
         )
 
 
-    # -----------------------------------------------------
-    # REPORT
-    # -----------------------------------------------------
+    # ========================================================
+    # DOWNLOAD REPORT
+    # ========================================================
 
     st.markdown(
-        '<div class="section-title">📦 Analysis Report</div>',
+        """
+        <div class="section-title">
+            📦 Download Analysis
+        </div>
+        """,
         unsafe_allow_html=True
     )
+
+    st.caption(
+        "The ZIP report contains the prediction report, "
+        "processed MRI image and Grad-CAM image."
+    )
+
 
     report_data = create_report(
         resized,
         cam,
         predicted,
         confidence,
-        probs
+        probabilities
     )
 
+
     st.download_button(
-        "⬇️ Download Prediction Report",
+        label="⬇️ Download Prediction Report",
         data=report_data,
         file_name="brain_tumor_prediction_report.zip",
         mime="application/zip",
@@ -815,79 +1001,4 @@ if analyze:
     )
 
 
-    # -----------------------------------------------------
-    # DISCLAIMER
-    # -----------------------------------------------------
-
-    st.warning(
-        "⚠️ Medical disclaimer: This is a "
-        "research/educational prototype. Model confidence "
-        "is not medical certainty. This application must "
-        "not replace evaluation by a qualified radiologist "
-        "or doctor."
-    )
-
-
-# =========================================================
-# ABOUT
-# =========================================================
-
-st.divider()
-
-st.markdown(
-    "## 🔬 About This Project"
-)
-
-st.write(
-    "**Brain Tumor Detection by Deep Learning** is a "
-    "research/educational prototype demonstrating the "
-    "application of deep learning to brain MRI "
-    "classification."
-)
-
-st.write("### Model")
-
-st.write(
-    """
-    - Architecture: **EfficientNetB0**
-    - Input size: **224 × 224 pixels**
-    - Classes: **4**
-    - Grad-CAM visualization: **Enabled**
-    """
-)
-
-st.write("### Supported Classes")
-
-st.write(
-    """
-    1. Glioma
-    2. Meningioma
-    3. No Tumor
-    4. Pituitary
-    """
-)
-
-st.warning(
-    "This application is intended only for research "
-    "and educational purposes. It is not a medical "
-    "diagnostic device."
-)
-
-
-# =========================================================
-# FOOTER
-# =========================================================
-
-indian_time = datetime.now(
-    ZoneInfo("Asia/Kolkata")
-)
-
-st.markdown(
-    "---"
-)
-
-st.caption(
-    "🧠 Brain Tumor Detection by Deep Learning | "
-    "Research / Educational Prototype | "
-    f"{indian_time.strftime('%Y-%m-%d %H:%M:%S IST')}"
-    )
+    # ==================================================
