@@ -296,17 +296,21 @@ def predict_image(model, image):
 # GRAD-CAM FUNCTION
 # ============================================================
 
-def make_gradcam(grad_model, image):
+def make_gradcam(gradcam_data, image):
 
-    if grad_model is None:
+    if gradcam_data is None:
         return None
 
     try:
 
+        grad_model, post_layers = gradcam_data
+
         # Prepare image
         image_rgb = image.convert("RGB")
 
-        resized = image_rgb.resize((224, 224))
+        resized = image_rgb.resize(
+            (224, 224)
+        )
 
         img_array = np.array(
             resized
@@ -317,13 +321,27 @@ def make_gradcam(grad_model, image):
             axis=0
         )
 
-        # Gradient calculation
+        # ---------------------------------------------
+        # GRAD-CAM
+        # ---------------------------------------------
+
         with tf.GradientTape() as tape:
 
-            conv_outputs, predictions = grad_model(
+            conv_outputs, backbone_output = grad_model(
                 img_array,
                 training=False
             )
+
+            # Pass EfficientNet output through
+            # the classification layers
+            predictions = backbone_output
+
+            for layer in post_layers:
+
+                predictions = layer(
+                    predictions,
+                    training=False
+                )
 
             predicted_index = tf.argmax(
                 predictions[0]
@@ -341,19 +359,22 @@ def make_gradcam(grad_model, image):
         )
 
         if gradients is None:
+
             return None
 
-        # Average gradients
+        # Average gradients over spatial dimensions
         pooled_gradients = tf.reduce_mean(
             gradients,
             axis=(0, 1, 2)
         )
 
+        # Remove batch dimension
         conv_outputs = conv_outputs[0]
 
         # Weighted feature maps
         heatmap = tf.reduce_sum(
-            conv_outputs * pooled_gradients,
+            conv_outputs *
+            pooled_gradients,
             axis=-1
         )
 
@@ -368,7 +389,7 @@ def make_gradcam(grad_model, image):
             heatmap
         )
 
-        if max_value > 0:
+        if float(max_value) > 0:
 
             heatmap = (
                 heatmap /
