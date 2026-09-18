@@ -714,6 +714,16 @@ if uploaded_file is not None:
     # GRAD-CAM
     # ========================================================
 
+        heatmap = make_gradcam(
+        grad_model,
+        image
+    )
+
+    overlay = create_overlay(
+        image,
+        heatmap
+    )
+
     if overlay is not None:
 
         st.markdown("### 🔥 Grad-CAM Visualization")
