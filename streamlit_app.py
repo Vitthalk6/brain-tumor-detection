@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from huggingface_hub import hf_hub_download
 import io
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 # ============================================================
@@ -781,7 +782,7 @@ BRAIN TUMOR DETECTION BY DEEP LEARNING
 ======================================
 
 Analysis Time:
-{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+{datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%Y-%m-%d %H:%M:%S IST")}
 
 Model:
 EfficientNetB0
