@@ -225,34 +225,37 @@ def load_model():
 @st.cache_resource
 def create_gradcam_model(model):
 
-    backbone = None
-
-    for layer in model.layers:
-
-        if isinstance(layer, tf.keras.Model):
-
-            if "efficientnet" in layer.name.lower():
-                backbone = layer
-                break
-
-    if backbone is None:
-        return None
-
     try:
+
+        backbone = None
+
+        for layer in model.layers:
+
+            if isinstance(layer, tf.keras.Model):
+
+                if "efficientnet" in layer.name.lower():
+                    backbone = layer
+                    break
+
+        if backbone is None:
+            return None
 
         target_layer = backbone.get_layer("top_conv")
 
         grad_model = tf.keras.models.Model(
-            inputs=backbone.input,
+            inputs=model.input,
             outputs=[
                 target_layer.output,
-                backbone.output
+                model.output
             ]
         )
 
         return grad_model
 
-    except Exception:
+    except Exception as e:
+
+        print("Grad-CAM error:", e)
+
         return None
 
 
@@ -301,49 +304,58 @@ def make_gradcam(grad_model, image):
 
     img_array = np.expand_dims(img_array, axis=0)
 
-    with tf.GradientTape() as tape:
+    try:
 
-        conv_outputs, predictions = grad_model(
-            img_array,
-            training=False
+        with tf.GradientTape() as tape:
+
+            conv_outputs, predictions = grad_model(
+                img_array,
+                training=False
+            )
+
+            predicted_index = tf.argmax(
+                predictions[0]
+            )
+
+            class_output = predictions[:, predicted_index]
+
+        gradients = tape.gradient(
+            class_output,
+            conv_outputs
         )
 
-        predicted_index = tf.argmax(
-            predictions[0]
+        if gradients is None:
+            return None
+
+        pooled_gradients = tf.reduce_mean(
+            gradients,
+            axis=(0, 1, 2)
         )
 
-        class_output = predictions[:, predicted_index]
+        conv_outputs = conv_outputs[0]
 
-    gradients = tape.gradient(
-        class_output,
-        conv_outputs
-    )
+        heatmap = tf.reduce_sum(
+            conv_outputs * pooled_gradients,
+            axis=-1
+        )
 
-    if gradients is None:
+        heatmap = tf.maximum(
+            heatmap,
+            0
+        )
+
+        max_value = tf.reduce_max(heatmap)
+
+        if max_value > 0:
+            heatmap = heatmap / max_value
+
+        return heatmap.numpy()
+
+    except Exception as e:
+
+        print("Grad-CAM calculation error:", e)
+
         return None
-
-    pooled_gradients = tf.reduce_mean(
-        gradients,
-        axis=(0, 1, 2)
-    )
-
-    conv_outputs = conv_outputs[0]
-
-    heatmap = conv_outputs @ pooled_gradients[..., tf.newaxis]
-
-    heatmap = tf.squeeze(heatmap)
-
-    heatmap = tf.maximum(
-        heatmap,
-        0
-    )
-
-    max_value = tf.reduce_max(heatmap)
-
-    if max_value > 0:
-        heatmap /= max_value
-
-    return heatmap.numpy()
 
 
 # ============================================================
