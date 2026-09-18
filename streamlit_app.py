@@ -716,34 +716,33 @@ if uploaded_file is not None:
 
     if overlay is not None:
 
-    st.markdown("### 🔥 Grad-CAM Visualization")
+        st.markdown("### 🔥 Grad-CAM Visualization")
 
-    cam_col1, cam_col2 = st.columns(2)
+        cam_col1, cam_col2 = st.columns(2)
 
-    with cam_col1:
+        with cam_col1:
 
-        st.markdown("#### Original MRI")
+            st.markdown("#### Original MRI")
 
-        st.image(
-            image,
-            use_container_width=True
+            st.image(
+                image,
+                use_container_width=True
+            )
+
+        with cam_col2:
+
+            st.markdown("#### AI Attention Map")
+
+            st.image(
+                overlay,
+                use_container_width=True
+            )
+
+    else:
+
+        st.info(
+            "Grad-CAM visualization is currently unavailable."
         )
-
-    with cam_col2:
-
-        st.markdown("#### AI Attention Map")
-
-        st.image(
-            overlay,
-            use_container_width=True
-        )
-
-else:
-
-    st.info(
-        "Grad-CAM visualization is currently unavailable "
-        "for this prediction."
-    )
 
 
     # ========================================================
