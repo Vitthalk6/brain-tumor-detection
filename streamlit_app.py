@@ -1000,7 +1000,7 @@ Class Probabilities:
 --------------------
 """
 
-for name, probability in zip(CLASS_NAMES, predictions):
+for name, probability in zip(CLASS_NAMES, probs):
     report += f"{name}: {float(probability) * 100:.2f}%\n"
 
 report += """
