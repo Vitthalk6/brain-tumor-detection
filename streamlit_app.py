@@ -1021,44 +1021,31 @@ Please consult a qualified radiologist or doctor for medical evaluation.
         use_container_width=True
     )
 
+
 # ============================================================
 # ABOUT THIS PROJECT
 # ============================================================
 
-st.markdown(
-    '<div class="section-title">🧠 About This Project</div>',
-    unsafe_allow_html=True
-)
+st.markdown("## 🧠 About This Project")
 
-st.markdown(
+st.info(
     """
-    <div class="info-box">
+    **Brain Tumor Detection by Deep Learning**
 
-        <div class="info-title">
-            Brain Tumor Detection by Deep Learning
-        </div>
+    This application is an EfficientNetB0-based research and
+    educational prototype for brain MRI image classification.
 
-        <div class="info-text">
-            This application is an EfficientNetB0-based
-            research and educational prototype for brain MRI
-            image classification.
+    The model classifies MRI images into four categories:
 
-            <br><br>
+    - Glioma
+    - Meningioma
+    - No Tumor
+    - Pituitary
 
-            The model classifies MRI images into four categories:
-            <b>Glioma</b>, <b>Meningioma</b>,
-            <b>No Tumor</b>, and <b>Pituitary</b>.
-
-            <br><br>
-
-            The application also provides class probability
-            information and Grad-CAM visualization to help
-            visualize regions that influenced the model prediction.
-        </div>
-
-    </div>
-    """,
-    unsafe_allow_html=True
+    The application also provides class probability information
+    and Grad-CAM visualization to show regions that influenced
+    the model prediction.
+    """
 )
 
 
@@ -1066,30 +1053,19 @@ st.markdown(
 # MEDICAL DISCLAIMER
 # ============================================================
 
-st.markdown(
+st.warning(
     """
-    <div class="disclaimer">
+    **⚠️ Medical Disclaimer**
 
-        <b>⚠️ Medical Disclaimer</b>
+    This application is intended for research and educational
+    purposes only. It is not a medical diagnostic device.
 
-        <br><br>
+    Model predictions and confidence scores should not be
+    considered medical advice or a confirmed diagnosis.
 
-        This application is intended for research and educational
-        purposes only. It is not a medical diagnostic device.
-
-        <br><br>
-
-        Model predictions and confidence scores should not be
-        considered medical advice or a confirmed diagnosis.
-
-        <br><br>
-
-        Always consult a qualified radiologist or medical
-        professional for clinical evaluation and diagnosis.
-
-    </div>
-    """,
-    unsafe_allow_html=True
+    Always consult a qualified radiologist or medical professional
+    for clinical evaluation and diagnosis.
+    """
 )
 
 
@@ -1097,25 +1073,10 @@ st.markdown(
 # FOOTER
 # ============================================================
 
-st.markdown(
-    """
-    <div class="custom-footer">
+st.divider()
 
-        <b>Brain Tumor Detection by Deep Learning</b>
-
-        <br><br>
-
-        EfficientNetB0 • Research/Educational Prototype
-
-        <br>
-
-        AI-powered Brain MRI Classification
-
-        <br><br>
-
-        <span>Not a medical diagnostic device</span>
-
-    </div>
-    """,
-    unsafe_allow_html=True
+st.caption(
+    "Brain Tumor Detection by Deep Learning | "
+    "EfficientNetB0 | Research/Educational Prototype | "
+    "Not a medical diagnostic device"
 )
