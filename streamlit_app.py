@@ -718,7 +718,6 @@ if uploaded_file is not None:
 # ========================================================
 # GRAD-CAM
 # ========================================================
-
     heatmap = make_gradcam(
         grad_model,
         image
