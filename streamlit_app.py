@@ -669,14 +669,15 @@ st.markdown(
 # ============================================================
 
 if analyze_button:
-
-    if uploaded_file is None:
-
-        st.warning(
-            "Please upload an MRI image first."
+    with st.spinner("AI is analyzing the MRI..."):
+        predicted_class, confidence, predictions, resized, img_array, predicted_index = predict_image(
+            model, image
         )
 
-        st.stop()
+        heatmap = make_gradcam(img_array, predicted_index)
+        cam = create_overlay(resized, heatmap)
+
+    # your prediction display code here
 
 
     # --------------------------------------------------------
