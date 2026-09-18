@@ -714,6 +714,10 @@ if uploaded_file is not None:
     # GRAD-CAM
     # ========================================================
 
+# ========================================================
+# GRAD-CAM
+# ========================================================
+
     heatmap = make_gradcam(
         grad_model,
         image
@@ -726,13 +730,17 @@ if uploaded_file is not None:
 
     if overlay is not None:
 
-        st.markdown("### 🔥 Grad-CAM Visualization")
+        st.markdown(
+            "### 🔥 Grad-CAM Visualization"
+        )
 
         cam_col1, cam_col2 = st.columns(2)
 
         with cam_col1:
 
-            st.markdown("#### Original MRI")
+            st.markdown(
+                "#### Original MRI"
+            )
 
             st.image(
                 image,
@@ -741,7 +749,9 @@ if uploaded_file is not None:
 
         with cam_col2:
 
-            st.markdown("#### AI Attention Map")
+            st.markdown(
+                "#### AI Attention Map"
+            )
 
             st.image(
                 overlay,
