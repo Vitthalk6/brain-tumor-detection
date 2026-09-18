@@ -227,37 +227,57 @@ def load_model():
 def create_gradcam_model(model):
 
     try:
-        # Find EfficientNet backbone
+
+        # Find EfficientNetB0
         backbone = None
 
         for layer in model.layers:
-            if isinstance(layer, tf.keras.Model):
-                if "efficientnet" in layer.name.lower():
-                    backbone = layer
-                    break
+
+            if (
+                isinstance(layer, tf.keras.Model)
+                and "efficientnet" in layer.name.lower()
+            ):
+                backbone = layer
+                break
 
         if backbone is None:
-            st.warning("EfficientNet backbone not found.")
             return None
 
-        # Find Grad-CAM target layer
-        target_layer = backbone.get_layer("top_conv")
+        # Find top_conv
+        target_layer = backbone.get_layer(
+            "top_conv"
+        )
+        st.write("Backbone:", backbone.name)
+st.write("Backbone input:", backbone.inputs)
+st.write("Backbone output:", backbone.outputs)
+st.write("Grad-CAM layer:", target_layer.name)
+st.write("Grad-CAM layer output:", target_layer.output)
 
         # IMPORTANT:
-        # Use the FULL MODEL input and final MODEL output
-        grad_model = tf.keras.models.Model(
-            inputs=model.inputs,
+        # Use the backbone's actual input tensor
+        # and build the intermediate model from it.
+        backbone_input = backbone.inputs[0]
+        target_output = target_layer.output
+        backbone_output = backbone.outputs[0]
+
+        grad_model = tf.keras.Model(
+            inputs=backbone_input,
             outputs=[
-                target_layer.output,
-                model.outputs[0]
-            ]
+                target_output,
+                backbone_output
+            ],
+            name="gradcam_model"
         )
 
-        return grad_model
+        return {
+            "grad_model": grad_model,
+            "backbone": backbone,
+            "target_layer": target_layer
+        }
 
     except Exception as e:
 
-        st.warning(
+        st.error(
             f"Grad-CAM model could not be created: {e}"
         )
 
