@@ -962,25 +962,23 @@ if analyze_button:
         )
 
 
-    # ========================================================
-    # REPORT
-    # ========================================================
+# ========================================================
+# REPORT
+# ========================================================
 
-    st.markdown(
-        '<div class="section-title">'
-        '📄 Prediction Report'
-        '</div>',
-        unsafe_allow_html=True
-    )
+st.markdown(
+    '<div class="section-title">'
+    '📄 Prediction Report'
+    '</div>',
+    unsafe_allow_html=True
+)
 
+# IST TIME
+indian_time = datetime.now(
+    ZoneInfo("Asia/Kolkata")
+)
 
-    # IST TIME
-    indian_time = datetime.now(
-        ZoneInfo("Asia/Kolkata")
-    )
-
-
-    report = f"""
+report = f"""
 BRAIN TUMOR DETECTION BY DEEP LEARNING
 ======================================
 
@@ -996,28 +994,12 @@ Prediction:
 Model Confidence:
 {confidence:.2f}%
 
-Class Probabilities:
---------------------
-"""
-
-for name, probability in zip(CLASS_NAMES, probs):
-    report += f"{name}: {float(probability) * 100:.2f}%\n"
-
-report += """
-
-Grad-CAM:
----------
-Grad-CAM visualization was generated to highlight image regions
-that influenced the model prediction.
-
 IMPORTANT DISCLAIMER:
----------------------
 This application is a research and educational prototype.
 The prediction and confidence score are not a medical diagnosis.
 This system must not be used for clinical decision-making.
 Please consult a qualified radiologist or doctor for medical evaluation.
 """
-
 
 st.download_button(
     label="📥 Download Prediction Report",
