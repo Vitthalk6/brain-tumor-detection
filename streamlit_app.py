@@ -992,3 +992,139 @@ EfficientNetB0
 
 Prediction:
 {predicted_class}
+
+Model Confidence:
+{confidence:.2f}%
+
+Class Probabilities:
+--------------------
+"""
+
+for name, probability in zip(CLASS_NAMES, predictions):
+    report += f"{name}: {float(probability) * 100:.2f}%\n"
+
+report += """
+
+Grad-CAM:
+---------
+Grad-CAM visualization was generated to highlight image regions
+that influenced the model prediction.
+
+IMPORTANT DISCLAIMER:
+---------------------
+This application is a research and educational prototype.
+The prediction and confidence score are not a medical diagnosis.
+This system must not be used for clinical decision-making.
+Please consult a qualified radiologist or doctor for medical evaluation.
+"""
+
+
+st.download_button(
+    label="📥 Download Prediction Report",
+    data=report,
+    file_name="brain_tumor_prediction_report.txt",
+    mime="text/plain",
+    use_container_width=True
+)
+
+
+# ========================================================
+# ABOUT THIS PROJECT
+# ========================================================
+
+st.markdown(
+    '<div class="section-title">'
+    '🧠 About This Project'
+    '</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <div class="info-box">
+
+        <div class="info-title">
+            Brain Tumor Detection by Deep Learning
+        </div>
+
+        <div class="info-text">
+            This application is an EfficientNetB0-based
+            research and educational prototype for brain MRI
+            image classification.
+
+            <br><br>
+
+            The model classifies MRI images into four categories:
+            <b>Glioma</b>, <b>Meningioma</b>,
+            <b>No Tumor</b>, and <b>Pituitary</b>.
+
+            <br><br>
+
+            The application also provides class probability
+            information and Grad-CAM visualization to help
+            visualize regions that influenced the model prediction.
+        </div>
+
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# ========================================================
+# MEDICAL DISCLAIMER
+# ========================================================
+
+st.markdown(
+    """
+    <div class="disclaimer">
+
+        <b>⚠️ Medical Disclaimer</b>
+
+        <br><br>
+
+        This application is intended for research and educational
+        purposes only. It is not a medical diagnostic device.
+
+        <br><br>
+
+        Model predictions and confidence scores should not be
+        considered medical advice or a confirmed diagnosis.
+
+        <br><br>
+
+        Always consult a qualified radiologist or medical
+        professional for clinical evaluation and diagnosis.
+
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# ========================================================
+# FOOTER
+# ========================================================
+
+st.markdown(
+    """
+    <div class="custom-footer">
+
+        <b>Brain Tumor Detection by Deep Learning</b>
+
+        <br><br>
+
+        EfficientNetB0 • Research/Educational Prototype
+
+        <br>
+
+        AI-powered Brain MRI Classification
+
+        <br><br>
+
+        <span>Not a medical diagnostic device</span>
+
+    </div>
+    """,
+    unsafe_allow_html=True
+)
