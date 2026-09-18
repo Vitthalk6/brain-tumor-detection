@@ -665,20 +665,11 @@ st.markdown(
 
 
 # ============================================================
+# ============================================================
 # ANALYSIS
 # ============================================================
 
 if analyze_button:
-    with st.spinner("AI is analyzing the MRI..."):
-        predicted_class, confidence, predictions, resized, img_array, predicted_index = predict_image(
-            model, image
-        )
-
-        heatmap = make_gradcam(img_array, predicted_index)
-        cam = create_overlay(resized, heatmap)
-
-    # your prediction display code here
-
 
     # --------------------------------------------------------
     # OPEN IMAGE
@@ -876,10 +867,6 @@ if analyze_button:
     )
 
 
-    # --------------------------------------------------------
-    # GENERATE GRAD-CAM
-    # --------------------------------------------------------
-
     with st.spinner(
         "🔥 Generating Grad-CAM..."
     ):
@@ -894,10 +881,6 @@ if analyze_button:
             heatmap
         )
 
-
-    # --------------------------------------------------------
-    # DISPLAY GRAD-CAM
-    # --------------------------------------------------------
 
     if overlay is not None:
 
@@ -963,23 +946,26 @@ if analyze_button:
         )
 
 
-# ========================================================
-# REPORT
-# ========================================================
+    # ========================================================
+    # REPORT
+    # ========================================================
 
-st.markdown(
-    '<div class="section-title">'
-    '📄 Prediction Report'
-    '</div>',
-    unsafe_allow_html=True
-)
+    st.markdown(
+        '<div class="section-title">'
+        '📄 Prediction Report'
+        '</div>',
+        unsafe_allow_html=True
+    )
 
-# IST TIME
-indian_time = datetime.now(
-    ZoneInfo("Asia/Kolkata")
-)
 
-report = f"""
+    # IST TIME
+
+    indian_time = datetime.now(
+        ZoneInfo("Asia/Kolkata")
+    )
+
+
+    report = f"""
 BRAIN TUMOR DETECTION BY DEEP LEARNING
 ======================================
 
@@ -995,21 +981,45 @@ Prediction:
 Model Confidence:
 {confidence:.2f}%
 
+Class Probabilities:
+--------------------
+"""
+
+
+    for name, probability in zip(
+        CLASS_NAMES,
+        predictions
+    ):
+
+        report += (
+            f"{name}: "
+            f"{float(probability) * 100:.2f}%\n"
+        )
+
+
+    report += """
+
+Grad-CAM:
+---------
+Grad-CAM visualization was generated to highlight
+image regions that influenced the model prediction.
+
 IMPORTANT DISCLAIMER:
+---------------------
 This application is a research and educational prototype.
 The prediction and confidence score are not a medical diagnosis.
 This system must not be used for clinical decision-making.
 Please consult a qualified radiologist or doctor for medical evaluation.
 """
 
-st.download_button(
-    label="📥 Download Prediction Report",
-    data=report,
-    file_name="brain_tumor_prediction_report.txt",
-    mime="text/plain",
-    use_container_width=True
-)
 
+    st.download_button(
+        label="📥 Download Prediction Report",
+        data=report,
+        file_name="brain_tumor_prediction_report.txt",
+        mime="text/plain",
+        use_container_width=True
+    )
 
 # ========================================================
 # ABOUT THIS PROJECT
